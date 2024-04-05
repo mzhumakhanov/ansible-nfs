@@ -9,4 +9,3 @@ ansible-playbook -i inventory playbook.yaml -l server -t nfs_server
 Setup NFS Clients:
 
 ansible-playbook -i inventory playbook.yaml -l clients -t nfs_client
-# ansible-nfs
