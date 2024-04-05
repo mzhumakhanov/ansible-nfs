@@ -1,0 +1,22 @@
+---
+- name: Update apt cache.
+  apt: update_cache=yes cache_valid_time=600
+  changed_when: false
+  tags: nfs_server, nfs_client
+ 
+- name: Ensure NFS Server utilities are installed.
+  apt:
+    name:
+      - nfs-common
+      - nfs-kernel-server
+    state: present
+  tags: nfs_server
+
+- name: Ensure NFS Client utilities are installed.
+  apt:
+    name:
+      - nfs-common
+    state: present
+  tags: nfs_client
+
+

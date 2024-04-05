@@ -1,0 +1,6 @@
+- name: Configure NFS Server or Clients
+  hosts: server, clients
+  become: yes
+  roles:
+    - role: nfs
+

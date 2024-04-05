@@ -1,0 +1,49 @@
+---
+# Include variables and define needed variables.
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: always
+
+# Setup/install tasks.
+- include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
+  tags: always
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+  tags: always
+
+- name: Ensure directories to export exist
+  file:
+    path: "{{ item.strip().split()[0] }}"
+    state: directory
+  with_items: "{{ nfs_exports }}"
+  tags: nfs_server
+
+- name: Copy exports file.
+  template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nfs
+  tags: nfs_server
+
+- name: Ensure nfs is running.
+  service: "name={{ nfs_server_daemon }} state=started enabled=yes"
+  when: nfs_exports|length
+  tags: nfs_server
+
+- name: Ensure directories to export exist
+  file:
+    path: "{{ client_nfs_prefix }}/{{ groups['server'][0] }}{{ item.strip().split()[0] }}"
+    state: directory
+  with_items: "{{ nfs_exports }}"
+  tags: nfs_client
+
+- name: Mount NFS
+  action: mount name={{ client_nfs_prefix }}/{{ groups['server'][0] }}{{ item.strip().split()[0] }} src={{groups['server'][0]}}:{{item.strip().split()[0]}} fstype=nfs opts={{client_mount_opts}} state=mounted
+  with_items: "{{ nfs_exports }}"
+  tags: nfs_client
+
