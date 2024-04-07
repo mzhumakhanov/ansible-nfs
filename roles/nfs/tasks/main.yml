@@ -35,7 +35,7 @@
   when: nfs_exports|length
   tags: nfs_server
 
-- name: Ensure directories to export exist
+- name: Ensure directories for mount points exist
   file:
     path: "{{ client_nfs_prefix }}/{{ groups['server'][0] }}{{ item.strip().split()[0] }}"
     state: directory
